@@ -45,28 +45,49 @@ def accum_stats(title, stats, before=True):
         stats[key]["RFE"] += 1
     elif "Received" in title:
         stats[key]["Received"] += 1
+    elif "Updated To Show Fingerprints" in title:
+        stats[key]["Fingerprints taken"] += 1
+    elif "Rejected" in title:
+        stats[key]["Rejected"] += 1
     else:
         stats[key]["Other"] += 1
 
     return stats
 
 
-def crawl_uscis(receipt_prefix, receipt_num, crawl_range):
+def crawl_uscis(receipt_prefix, receipt_nums, crawl_range):
 
-    results = get_status(receipt_prefix + str(receipt_num))
     print("Your Summary:\n")
-    for k, v in results.items():
-        print(f"{k}: {v}")
+    for receipt_num in receipt_nums:
+        results = get_status(receipt_prefix + str(receipt_num))
+        for k, v in results.items():
+            print(f"{k}: {v}")
+        print("\n")
 
     stats = {
-        "Before": {"Approved": 0, "RFE": 0, "Received": 0, "Other": 0},
-        "After": {"Approved": 0, "RFE": 0, "Received": 0, "Other": 0},
+        "Before": {
+            "Approved": 0,
+            "RFE": 0,
+            "Received": 0,
+            "Other": 0,
+            "Rejected": 0,
+            "Fingerprints taken": 0,
+        },
+        "After": {
+            "Approved": 0,
+            "RFE": 0,
+            "Received": 0,
+            "Other": 0,
+            "Rejected": 0,
+            "Fingerprints taken": 0,
+        },
     }
     results = {}
 
     with ThreadPoolExecutor(max_workers=8) as executor:
         futures = []
-        for i in range(receipt_num - crawl_range, receipt_num + crawl_range):
+        last_receipt_num = int(receipt_nums[-1])
+        for i in range(last_receipt_num - crawl_range, last_receipt_num + crawl_range):
             result = futures.append(
                 (i, executor.submit(get_status, receipt_prefix + str(i)))
             )
@@ -74,9 +95,18 @@ def crawl_uscis(receipt_prefix, receipt_num, crawl_range):
         for future in futures:
             receipt_idx, result_future = future
             result = result_future.result()
-            results[i] = result
+            results[receipt_idx] = result
+            if not any(
+                [
+                    check in result["Description"]
+                    for check in ["I-131", "I-485", "I-765"]
+                ]
+            ):
+                continue
             if "Title" in result:  # Just checking to make sure it's not an error
-                stats = accum_stats(result["Title"], stats, receipt_idx > receipt_num)
+                stats = accum_stats(
+                    result["Title"], stats, receipt_idx > last_receipt_num
+                )
 
     print("Analyzing neighbors:\n")
     for k, v in stats.items():
@@ -94,19 +124,21 @@ if __name__ == "__main__":
         description="Command line interface to compute comparative metrics on sets of queries in database."
     )
     parser.add_argument(
-        "--receipt_prefix", help="USCIS given receipt prefix.", type=str
+        "--receipt_prefix", help="USCIS given receipt prefix.", type=str, default="MSC"
     )
     parser.add_argument(
-        "--receipt_num",
+        "--receipt_nums",
         help="USCIS given receipt number.",
-        type=int,
+        type=list,
+        default=["2290262024", "2290262025", "2290262026"],
     )
     parser.add_argument(
-        "--crawl_range", help="+- receipt numbers to crawl", type=int, default=50
+        "--crawl_range", help="+- receipt numbers to crawl", type=int, default=100
     )
+
     args = parser.parse_args()
 
-    results = crawl_uscis(args.receipt_prefix, args.receipt_num, args.crawl_range)
+    results = crawl_uscis(args.receipt_prefix, args.receipt_nums, args.crawl_range)
 
     with open("uscis_crawls.json", "w") as f:
         json.dump(results, f)
