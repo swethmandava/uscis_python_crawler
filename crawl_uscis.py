@@ -127,10 +127,10 @@ if __name__ == "__main__":
         "--receipt_prefix", help="USCIS given receipt prefix.", type=str, default="MSC"
     )
     parser.add_argument(
-        "--receipt_nums",
-        help="USCIS given receipt number.",
-        type=list,
-        default=["2290262024", "2290262025", "2290262026"],
+        "--receipt_numbers",
+        help="comma separated USCIS given receipt numbers",
+        type=str,
+        default="2290263023,2290263024,2290263025",
     )
     parser.add_argument(
         "--crawl_range", help="+- receipt numbers to crawl", type=int, default=100
@@ -138,7 +138,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    results = crawl_uscis(args.receipt_prefix, args.receipt_nums, args.crawl_range)
+    results = crawl_uscis(
+        args.receipt_prefix, args.receipt_numbers.split(","), args.crawl_range
+    )
 
     with open("uscis_crawls.json", "w") as f:
         json.dump(results, f)

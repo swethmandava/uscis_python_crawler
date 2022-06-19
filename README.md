@@ -17,7 +17,7 @@ pip3 install -e .
 ## Running the crawler
 
 ```
-python crawl_uscis --receipt_prefix=<3 letter string> --receipt_number=[<6 digit number>, <6 digit number>, ..] --crawl_range=<int correlating to paranoia level>
+python crawl_uscis.py --receipt_prefix=<3 letter string> --receipt_numbers="<6 digit number>,<6 digit number>" --crawl_range=<int correlating to paranoia level>
 ```
 
 
