@@ -17,7 +17,7 @@ pip3 install -e .
 ## Running the crawler
 
 ```
-python crawl_uscis --receipt_prefix=<3 letter string> --receipt_number=<10 digit number> --crawl_range=<int correlating to paranoia level>
+python crawl_uscis.py --receipt_prefix=<3 letter string> --receipt_numbers="<6 digit number>,<6 digit number>" --crawl_range=<int correlating to paranoia level>
 ```
 
 
@@ -28,6 +28,12 @@ python crawl_uscis --receipt_prefix=<3 letter string> --receipt_number=<10 digit
 Your Summary:
 
 Description: On June 4, 2021, we received your Form I-765, Application for Employment Authorization, Receipt Number WAC2124651376, and sent you the receipt notice that describes how we will process your case.  Please follow the instructions in the notice.  If you have any questions, contact the USCIS Contact Center at www.uscis.gov/contactcenter.  If you move, go to www.uscis.gov/addresschange to give us your new mailing address.
+Title: Case Was Received
+
+Description: On June 4, 2021, we received your Form I-130, Application for Employment Authorization, Receipt Number WAC2124651376, and sent you the receipt notice that describes how we will process your case.  Please follow the instructions in the notice.  If you have any questions, contact the USCIS Contact Center at www.uscis.gov/contactcenter.  If you move, go to www.uscis.gov/addresschange to give us your new mailing address.
+Title: Case Was Received
+
+Description: On June 4, 2021, we received your Form I-485, Application for Employment Authorization, Receipt Number WAC2124651376, and sent you the receipt notice that describes how we will process your case.  Please follow the instructions in the notice.  If you have any questions, contact the USCIS Contact Center at www.uscis.gov/contactcenter.  If you move, go to www.uscis.gov/addresschange to give us your new mailing address.
 Title: Case Was Received
 
 Analyzing neighbors:
